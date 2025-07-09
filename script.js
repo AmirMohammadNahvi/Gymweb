@@ -50,12 +50,25 @@ const defaultSchedule = {
   "چهارشنبه - Lower + Core + Cardio": "18:00"
 };
 
+const dayMap = {
+  "یک‌شنبه": 0,
+  "دوشنبه": 1,
+  "سه‌شنبه": 2,
+  "چهارشنبه": 3,
+  "پنج‌شنبه": 4,
+  "جمعه": 5,
+  "شنبه": 6
+};
+
 // کلید و آیدی گوگل را در این متغیرها قرار دهید
 const CLIENT_ID = "YOUR_CLIENT_ID"; // FIXME
 const API_KEY = "YOUR_API_KEY"; // FIXME
-const DISCOVERY =
+const DISCOVERY_DRIVE =
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-const SCOPES = "https://www.googleapis.com/auth/drive.file";
+const DISCOVERY_CAL =
+  "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest";
+const SCOPES =
+  "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events";
 
 let tokenClient;
 let driveFileId = null;
@@ -157,7 +170,7 @@ function createCard(day, exercises, checked, onToggle) {
     const vBtn = document.createElement('button');
     vBtn.className = 'video';
     vBtn.textContent = 'ویدیو';
-    vBtn.onclick = () => openYoutube(ex);
+    vBtn.onclick = () => openGoogle(ex);
     item.appendChild(vBtn);
 
     const dBtn = document.createElement('button');
@@ -205,12 +218,9 @@ function handleToggle(day, ex, resetDay = false) {
   updateOverall();
 }
 
-function openYoutube(exercise) {
+function openGoogle(exercise) {
   const query = encodeURIComponent(`${exercise} تمرین بدنسازی`);
-  window.open(
-    `https://www.youtube.com/results?search_query=${query}`,
-    '_blank'
-  );
+  window.open(`https://www.google.com/search?q=${query}`, '_blank');
 }
 
 // گوگل درایو
@@ -219,7 +229,10 @@ function gapiLoaded() {
 }
 
 async function initializeGapiClient() {
-  await gapi.client.init({ apiKey: API_KEY, discoveryDocs: [DISCOVERY] });
+  await gapi.client.init({
+    apiKey: API_KEY,
+    discoveryDocs: [DISCOVERY_DRIVE, DISCOVERY_CAL]
+  });
   gapiInited = true;
   maybeEnableButtons();
 }
@@ -237,6 +250,9 @@ function gisLoaded() {
 function maybeEnableButtons() {
   if (gapiInited && gisInited) {
     document.getElementById('authorize_button').style.display = 'inline-block';
+    document.getElementById('calendar_button').style.display = 'none';
+    document.getElementById('save_drive').style.display = 'none';
+    document.getElementById('signout_button').style.display = 'none';
   }
 }
 
@@ -249,6 +265,7 @@ function handleAuthClick() {
     document.getElementById('signout_button').style.display = 'inline-block';
     document.getElementById('authorize_button').style.display = 'none';
     document.getElementById('save_drive').style.display = 'inline-block';
+    document.getElementById('calendar_button').style.display = 'inline-block';
     await loadFromDrive();
   };
 
@@ -267,6 +284,7 @@ function handleSignoutClick() {
     document.getElementById('signout_button').style.display = 'none';
     document.getElementById('authorize_button').style.display = 'inline-block';
     document.getElementById('save_drive').style.display = 'none';
+    document.getElementById('calendar_button').style.display = 'none';
   }
 }
 
@@ -317,9 +335,43 @@ async function saveToDrive() {
   });
 }
 
+function nextDate(dayNumber) {
+  const now = new Date();
+  const diff = (dayNumber + 7 - now.getDay()) % 7;
+  now.setDate(now.getDate() + diff);
+  return now;
+}
+
+async function addToCalendar() {
+  for (const day of Object.keys(workoutPlan)) {
+    const name = day.split(' ')[0];
+    const num = dayMap[name];
+    if (num === undefined) continue;
+    const date = nextDate(num);
+    const time = (scheduleState[day] || defaultSchedule[day]).split(':');
+    const start = new Date(date);
+    start.setHours(+time[0], +time[1], 0, 0);
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const event = {
+      summary: day,
+      start: { dateTime: start.toISOString(), timeZone: 'Asia/Tehran' },
+      end: { dateTime: end.toISOString(), timeZone: 'Asia/Tehran' }
+    };
+    try {
+      await gapi.client.calendar.events.insert({
+        calendarId: 'primary',
+        resource: event
+      });
+    } catch (e) {
+      console.log('calendar error', e);
+    }
+  }
+}
+
 document.getElementById('authorize_button').onclick = handleAuthClick;
 document.getElementById('signout_button').onclick = handleSignoutClick;
 document.getElementById('save_drive').onclick = saveToDrive;
+document.getElementById('calendar_button').onclick = addToCalendar;
 document.getElementById('reset_all').onclick = () => {
   checkedState = {};
   saveState(checkedState);

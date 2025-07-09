@@ -1,20 +1,28 @@
 body {
   font-family: 'Vazirmatn', sans-serif;
-  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  background: linear-gradient(135deg, #d8b4fe, #818cf8);
+  min-height: 100vh;
   margin: 0;
   padding: 20px;
   display: flex;
   justify-content: center;
+  box-sizing: border-box;
+  color: #fff;
 }
 
 #auth {
   margin-bottom: 1rem;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 #overall {
   text-align: center;
   margin-bottom: 1rem;
+  color: #fff;
 }
 
 .progress-wrap {
@@ -61,8 +69,14 @@ body {
 .card {
   background: white;
   border-radius: 1rem;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-  padding: 1rem 1.5rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem 1.5rem;
+  transition: transform 0.2s ease;
+  color: #333;
+}
+
+.card:hover {
+  transform: translateY(-4px);
 }
 
 .card h2 {
@@ -87,29 +101,30 @@ body {
 }
 
 button {
-  padding: 0.35rem 0.65rem;
+  padding: 0.4rem 0.8rem;
   margin-left: 0.25rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-family: inherit;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 button.video {
-  background: #e2e8f0;
+  background: #f3f4f6;
 }
 
 button.done {
-  background: #38bdf8;
-  color: white;
+  background: #6366f1;
+  color: #fff;
 }
 
 
 @media (hover: hover) {
   button.video:hover {
-    background: #cbd5e1;
+    background: #e5e7eb;
   }
   button.done:hover {
-    background: #0ea5e9;
+    background: #4f46e5;
   }
 }
