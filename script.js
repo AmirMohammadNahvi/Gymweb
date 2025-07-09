@@ -86,6 +86,25 @@ function saveState(state) {
   localStorage.setItem('checked', JSON.stringify(state));
 }
 
+function computeProgress(day, exercises, checked) {
+  const done = exercises.filter((ex) => checked[day] && checked[day][ex]).length;
+  return { done, total: exercises.length };
+}
+
+function updateOverall() {
+  const overall = document.getElementById('progress_text');
+  const { done, total } = Object.entries(workoutPlan).reduce(
+    (acc, [d, exs]) => {
+      const pr = computeProgress(d, exs, checkedState);
+      return { done: acc.done + pr.done, total: acc.total + pr.total };
+    },
+    { done: 0, total: 0 }
+  );
+  if (overall) {
+    overall.textContent = `پیشرفت کلی: ${done}/${total}`;
+  }
+}
+
 function createCard(day, exercises, checked, onToggle) {
   const card = document.createElement('div');
   card.className = 'card';
@@ -108,6 +127,22 @@ function createCard(day, exercises, checked, onToggle) {
   timeWrap.appendChild(label);
   timeWrap.appendChild(input);
   card.appendChild(timeWrap);
+
+  const progInfo = computeProgress(day, exercises, checked);
+  const wrap = document.createElement('div');
+  wrap.className = 'progress-wrap';
+  const bar = document.createElement('div');
+  bar.className = 'progress';
+  const fill = document.createElement('div');
+  fill.className = 'bar';
+  fill.style.width = `${(progInfo.done / progInfo.total) * 100}%`;
+  bar.appendChild(fill);
+  const labelP = document.createElement('span');
+  labelP.className = 'progress-label';
+  labelP.textContent = `${progInfo.done}/${progInfo.total}`;
+  wrap.appendChild(bar);
+  wrap.appendChild(labelP);
+  card.appendChild(wrap);
 
   exercises.forEach(ex => {
     const item = document.createElement('div');
@@ -152,6 +187,7 @@ function render() {
       createCard(day, exercises, checkedState, handleToggle)
     );
   });
+  updateOverall();
 }
 
 let checkedState = loadState();
@@ -166,6 +202,7 @@ function handleToggle(day, ex, resetDay = false) {
   }
   saveState(checkedState);
   render();
+  updateOverall();
 }
 
 function openYoutube(exercise) {
@@ -252,6 +289,7 @@ async function loadFromDrive() {
       saveState(checkedState);
       saveSchedule(scheduleState);
       render();
+      updateOverall();
     }
   } catch (e) {
     console.log('load error', e);
@@ -282,5 +320,11 @@ async function saveToDrive() {
 document.getElementById('authorize_button').onclick = handleAuthClick;
 document.getElementById('signout_button').onclick = handleSignoutClick;
 document.getElementById('save_drive').onclick = saveToDrive;
+document.getElementById('reset_all').onclick = () => {
+  checkedState = {};
+  saveState(checkedState);
+  render();
+  updateOverall();
+};
 
 render();
