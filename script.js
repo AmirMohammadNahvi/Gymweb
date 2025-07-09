@@ -122,7 +122,7 @@ function createCard(day, exercises, checked, onToggle) {
     const vBtn = document.createElement('button');
     vBtn.className = 'video';
     vBtn.textContent = 'ویدیو';
-    vBtn.onclick = () => toggleGif(item, ex);
+    vBtn.onclick = () => openYoutube(ex);
     item.appendChild(vBtn);
 
     const dBtn = document.createElement('button');
@@ -168,34 +168,12 @@ function handleToggle(day, ex, resetDay = false) {
   render();
 }
 
-function toggleGif(container, exercise) {
-  const existing = container.querySelector('img.gif');
-  if (existing) {
-    existing.remove();
-    return;
-  }
-  const img = document.createElement('img');
-  img.className = 'gif';
-  img.alt = exercise;
-  container.appendChild(img);
-
-  fetch(
-    `https://g.tenor.com/v1/search?q=${encodeURIComponent(
-      exercise
-    )}&key=LIVDSRZULELA&limit=1`
-  )
-    .then((r) => r.json())
-    .then((data) => {
-      const url =
-        data.results?.[0]?.media?.[0]?.tinygif?.url ||
-        data.results?.[0]?.media?.[0]?.gif?.url;
-      if (url) {
-        img.src = url;
-      } else {
-        img.remove();
-      }
-    })
-    .catch(() => img.remove());
+function openYoutube(exercise) {
+  const query = encodeURIComponent(`${exercise} تمرین بدنسازی`);
+  window.open(
+    `https://www.youtube.com/results?search_query=${query}`,
+    '_blank'
+  );
 }
 
 // گوگل درایو
