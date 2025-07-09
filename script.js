@@ -119,14 +119,11 @@ function createCard(day, exercises, checked, onToggle) {
     span.textContent = ex;
     item.appendChild(span);
 
-    const video = document.createElement('a');
-    video.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(ex + ' تمرین بدنسازی')}`;
-    video.target = '_blank';
     const vBtn = document.createElement('button');
     vBtn.className = 'video';
     vBtn.textContent = 'ویدیو';
-    video.appendChild(vBtn);
-    item.appendChild(video);
+    vBtn.onclick = () => toggleVideo(item, ex);
+    item.appendChild(vBtn);
 
     const dBtn = document.createElement('button');
     dBtn.className = 'done';
@@ -169,6 +166,18 @@ function handleToggle(day, ex, resetDay = false) {
   }
   saveState(checkedState);
   render();
+}
+
+function toggleVideo(container, exercise) {
+  const existing = container.querySelector('iframe');
+  if (existing) {
+    existing.remove();
+    return;
+  }
+  const frame = document.createElement('iframe');
+  frame.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(exercise + ' تمرین')}`;
+  frame.allowFullscreen = true;
+  container.appendChild(frame);
 }
 
 // گوگل درایو
