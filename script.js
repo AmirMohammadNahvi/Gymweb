@@ -109,19 +109,7 @@ function computeProgress(day, exercises, checked) {
   return { done, total: exercises.length };
 }
 
-function updateOverall() {
-  const overall = document.getElementById('progress_text');
-  const { done, total } = Object.entries(workoutPlan).reduce(
-    (acc, [d, exs]) => {
-      const pr = computeProgress(d, exs, checkedState);
-      return { done: acc.done + pr.done, total: acc.total + pr.total };
-    },
-    { done: 0, total: 0 }
-  );
-  if (overall) {
-    overall.textContent = `پیشرفت کلی: ${done}/${total}`;
-  }
-}
+
 
 function createCard(day, exercises, checked, onToggle) {
   const card = document.createElement('div');
@@ -377,11 +365,6 @@ document.getElementById('authorize_button').onclick = handleAuthClick;
 document.getElementById('signout_button').onclick = handleSignoutClick;
 document.getElementById('save_drive').onclick = saveToDrive;
 document.getElementById('calendar_button').onclick = addToCalendar;
-document.getElementById('reset_all').onclick = () => {
-  checkedState = {};
-  saveState(checkedState);
-  render();
-  updateOverall();
-};
+
 
 render();
