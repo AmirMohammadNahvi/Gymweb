@@ -49,10 +49,10 @@ const workoutPlan = {
 
 // زمان پیش‌فرض هر روز
 const defaultSchedule = {
-  "شنبه - Push": "18:00",
-  "یک‌شنبه - Lower (قدرتی)": "18:00",
-  "سه‌شنبه - Pull": "18:00",
-  "چهارشنبه - Lower + Core + Cardio": "18:00"
+  "شنبه - Push": "15:00",
+  "یک‌شنبه - Lower (قدرتی)": "15:00",
+  "سه‌شنبه - Pull": "15:00",
+  "چهارشنبه - Lower + Core + Cardio": "15:00"
 };
 
 const dayMap = {
